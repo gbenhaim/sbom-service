@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/julienschmidt/httprouter"
+	"github.com/rs/cors"
 	"github.com/sigstore/cosign/cmd/cosign/cli/download"
 	"github.com/sigstore/cosign/cmd/cosign/cli/options"
 )
@@ -16,7 +17,15 @@ import (
 func main() {
 	router := httprouter.New()
 	router.GET("/sbom/*ref", sbomHandler)
-	if err := http.ListenAndServe(":8080", router); err != nil {
+
+	corsMiddleware := cors.New(cors.Options{
+		AllowedOrigins: []string{"http://127.0.0.1:9000", "http://localhost:9000"},
+		AllowedMethods: []string{"GET"},
+		Debug:          true,
+	})
+
+	handler := corsMiddleware.Handler(router)
+	if err := http.ListenAndServe(":8080", handler); err != nil {
 		panic(err)
 	}
 }
