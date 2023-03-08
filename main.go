@@ -16,7 +16,9 @@ import (
 func main() {
 	router := httprouter.New()
 	router.GET("/sbom/*ref", sbomHandler)
-	http.ListenAndServe(":8080", router)
+	if err := http.ListenAndServe(":8080", router); err != nil {
+		panic(err)
+	}
 }
 
 func sbomHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
